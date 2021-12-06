@@ -1,5 +1,6 @@
 
 //Socket 클래스
+import java.awt.geom.RoundRectangle2D;
 import java.net.*;
 
 //입출력 클래스
@@ -8,35 +9,49 @@ import java.io.*;
 //그래픽 관련 클래스
 import java.awt.*; // GUI
 import javax.swing.*; // JFrame, JTextField, JTextArea, JScrollPane
+import javax.swing.border.Border;
 
 //Event 처리
 import java.awt.event.*; // ActionListener
 
-public class ChatGUIClient extends JFrame implements ActionListener, Runnable {
+public class ChatClient extends JFrame implements ActionListener, Runnable {
 
- // ======== GUI =========
- JTextField field; // 전송할 텍스트 입력창
- JTextArea textArea; // 전송받은 텍스트 출력
+    // ======== GUI =========
+    JTextField field; // 전송할 텍스트 입력창
+    JTextArea textArea; // 전송받은 텍스트 출력
 
- JScrollPane scroll; // 스크롤바 생성
+    JScrollPane scroll; // 스크롤바 생성
 
- JButton send; // 전송 버튼
+    JButton send; // 전송 버튼
+    ImageIcon sendIcon; // 전송 아이콘
 
- // ======== Socket =======
- Socket s; // 서버와의 통신을 위함
+//    JPanel panelL = new JPanel();
+//    JPanel panelR = new JPanel();
+    JPanel panelSouth = new JPanel();
 
- // ======== Stream =======
- BufferedReader br; // 클라이언트에서의 문자열 입력 스트림
- PrintWriter pw; // 문자열 출력 스트림
+    Color col1 = new Color(144, 148, 255);
 
- // 서버로 전송할 문자열과 서버에서 받아올 문자열 변수
- String str, str1;
 
+    // ======== Socket =======
+    Socket s; // 서버와의 통신을 위함
+
+    // ======== Stream =======
+    BufferedReader br; // 클라이언트에서의 문자열 입력 스트림
+    PrintWriter pw; // 문자열 출력 스트림
+
+    // 서버로 전송할 문자열과 서버에서 받아올 문자열 변수
+    String str, str1;
  // ======== 생성자 ========
- public ChatGUIClient() {
+ public ChatClient() {
      // 창, 부착할 컴포넌트 생성 및 연결
      field = new JTextField();
      textArea = new JTextArea();
+     sendIcon = new ImageIcon("src/main/java/img/send_btn.png");
+     Image newImg = sendIcon.getImage().getScaledInstance(36, 36,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+     sendIcon = new ImageIcon(newImg);  // transform it back
+     send = new JButton(sendIcon);
+
+
 
      // 텍스트 출력창에 스크롤 바 연결
      scroll = new JScrollPane(textArea);
@@ -44,17 +59,25 @@ public class ChatGUIClient extends JFrame implements ActionListener, Runnable {
      // BorderLayout 배치관리자, JTextArea를 정중앙에 부착
      add(scroll, "Center");
 
-     // 텍스트 필드를 하단에 부착
-     add(field, BorderLayout.SOUTH);
+     // 텍스트 필드+버튼을 하단에 부착
+     panelSouth.setLayout(new BorderLayout(1,2));
+
+     panelSouth.add(field, BorderLayout.WEST);
+     panelSouth.add(send, BorderLayout.EAST);
+     field.setPreferredSize(new Dimension(300, 35));
+     send.setPreferredSize(new Dimension(35, 35));
+     add(panelSouth, BorderLayout.SOUTH);
 
      // 텍스트 필드에서 이벤트(enter)를 입력받고 해당 객체에서 이벤트 처리
      field.addActionListener(this);
 
      // 창 크기 지정
-     setBounds(200, 200, 500, 350);
+//     setBounds(200, 200, 500, 350);
+     setSize(350,650);
 
-     // 창이 보이도록 설정
+     // 창이 보이도록, 크기 조절 가능하도록 설정
      setVisible(true);
+     setResizable(true);
 
      // 텍스트 필드에 커서 입력
      field.requestFocus();
@@ -66,7 +89,7 @@ public class ChatGUIClient extends JFrame implements ActionListener, Runnable {
      try {
          // 클라이언트 측 소켓 정보 초기화
          // Socket(host, port), host: 접속 서버 IP 주소, port: 서버 포트 번호
-         s = new Socket("192.168.26.103", 8080);
+         s = new Socket("192.168.11.105", 8080);
          System.out.println("s>>>" + s);
 
          // ========== Server와 Stream 연결 ===========
@@ -85,6 +108,7 @@ public class ChatGUIClient extends JFrame implements ActionListener, Runnable {
      // 클라이언트 스레드 실행 → run() 호출
      ct.start();
  }
+
 
  // Runnable 인터페이스 run() 메소드 오버라이딩
  public void run() {
@@ -115,7 +139,7 @@ public class ChatGUIClient extends JFrame implements ActionListener, Runnable {
  public static void main(String[] args) {
 
      // 클라이언트 객체 생성, 생성자 호출
-     new ChatGUIClient();
+     new ChatClient();
 
  }
 
