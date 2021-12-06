@@ -1,6 +1,5 @@
 
 //Socket 클래스
-import java.awt.geom.RoundRectangle2D;
 import java.net.*;
 
 //입출력 클래스
@@ -9,7 +8,6 @@ import java.io.*;
 //그래픽 관련 클래스
 import java.awt.*; // GUI
 import javax.swing.*; // JFrame, JTextField, JTextArea, JScrollPane
-import javax.swing.border.Border;
 
 //Event 처리
 import java.awt.event.*; // ActionListener
@@ -25,6 +23,9 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
     JButton send; // 전송 버튼
     ImageIcon sendIcon; // 전송 아이콘
 
+    JPanel topE; //상단부
+    JLabel name; //서버네임
+
 //    JPanel panelL = new JPanel();
 //    JPanel panelR = new JPanel();
     JPanel panelSouth = new JPanel();
@@ -37,7 +38,7 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
 
     // ======== Stream =======
     BufferedReader br; // 클라이언트에서의 문자열 입력 스트림
-    PrintWriter pw; // 문자열 출력 스트림
+    PrintWriter printW; // 문자열 출력 스트림
 
     // 서버로 전송할 문자열과 서버에서 받아올 문자열 변수
     String str, str1;
@@ -50,14 +51,25 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
      Image newImg = sendIcon.getImage().getScaledInstance(36, 36,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
      sendIcon = new ImageIcon(newImg);  // transform it back
      send = new JButton(sendIcon);
-
-
+     topE = new JPanel();
+     topE.setBackground(col1);
+     name = new JLabel("친목");
+     name.setFont(new Font("HY헤드라인M", Font.BOLD, 17));
+     name.setForeground(Color.white);
+     name.setBorder(BorderFactory.createEmptyBorder(10 , 10 , 10 , 10)); //패딩
+     topE.add(name);
 
      // 텍스트 출력창에 스크롤 바 연결
      scroll = new JScrollPane(textArea);
 
+     //topE를 상단에 부착
+     add(topE, "North");
+     topE.setPreferredSize(new Dimension(300, 44));
+
      // BorderLayout 배치관리자, JTextArea를 정중앙에 부착
      add(scroll, "Center");
+     setBackground(Color.white);
+     scroll.setBorder(BorderFactory.createEmptyBorder(10 , 10 , 10 , 10));
 
      // 텍스트 필드+버튼을 하단에 부착
      panelSouth.setLayout(new BorderLayout(1,2));
@@ -66,6 +78,8 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
      panelSouth.add(send, BorderLayout.EAST);
      field.setPreferredSize(new Dimension(300, 35));
      send.setPreferredSize(new Dimension(35, 35));
+
+     field.setBorder(BorderFactory.createEmptyBorder(10 , 10 , 10 , 10));
      add(panelSouth, BorderLayout.SOUTH);
 
      // 텍스트 필드에서 이벤트(enter)를 입력받고 해당 객체에서 이벤트 처리
@@ -96,7 +110,7 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
          br = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
          // PrintWriter 스트림의 autoFlush 기능 활성화
-         pw = new PrintWriter(s.getOutputStream(), true);
+         printW = new PrintWriter(s.getOutputStream(), true);
 
      } catch (Exception e) {
          System.out.println("접속 오류>>>" + e);
@@ -108,6 +122,55 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
      // 클라이언트 스레드 실행 → run() 호출
      ct.start();
  }
+
+//class RoundedBorder implements Border
+//{
+//    private int r;
+//    private Color bgColor;
+//    RoundedBorder(int r) {
+//        this.r = r;
+//    }
+//    RoundedBorder(int r, Color bgColor) {
+//        this.r = r;
+//        this.bgColor = bgColor;
+//    }
+//    public Insets getBorderInsets(Component c) {
+//        return new Insets(this.r+1, this.r+1, this.r+2, this.r);
+//    }
+//    public boolean isBorderOpaque() {
+//        return true;
+//    }
+//    public void paintBorder(Component c, Graphics g, int x, int y,
+//                            int width, int height) {
+////        if (bgColor != null) {
+////            g.setColor(bgColor);
+////        } else {
+////            g.setColor(getBackground());
+////        }
+//        g.setColor(col1);
+//        g.setColor(getForeground());
+//        g.fillRoundRect(x, y, width-1, height-1, r, r); //paint background
+//        g.drawRoundRect(x, y, width-1, height-1, r, r);  //paint border
+//    }
+//}
+
+
+
+//    class MyPanel extends JPanel {
+//        public MyPanel() {
+////필요한 초기화 기능 설정
+//            setBorder(BorderFactory.createLineBorder(Color.black));
+//        }
+//        public void paintComponent(Graphics g) {
+//// 여기에 그림을 그리는 코드를 구현함
+//            g.setColor(col1);
+//            g.drawRoundRect(50, 50, 35, 35, 15, 15);
+//            g.fillRoundRect(50, 50, 35, 35, 15, 15);
+//        }
+//    }
+
+
+
 
 
  // Runnable 인터페이스 run() 메소드 오버라이딩
@@ -132,8 +195,8 @@ public class ChatClient extends JFrame implements ActionListener, Runnable {
      field.setText("");
 
      // 내가 쓴 메세지 출력 -> 상대방은 br.readLine()으로 읽어들임
-     pw.println(str);
-     pw.flush();
+     printW.println(str);
+     printW.flush();
  }
 
  public static void main(String[] args) {
